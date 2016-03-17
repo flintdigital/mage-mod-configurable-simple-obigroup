@@ -205,7 +205,7 @@ Product.Config.prototype.reloadPrice = function() {
 };
 
 
-
+/*
 Product.Config.prototype.updateProductImage = function(productId) {
     var imageUrl = this.config.imageUrl;
     if(productId && this.config.childProducts[productId].imageUrl) {
@@ -225,6 +225,60 @@ Product.Config.prototype.updateProductImage = function(productId) {
     }
     gal.load(dataArr);
 };
+*/
+
+
+Product.Config.prototype.updateProductImage = function(productId) {
+    if(EtalageGallery) {
+        var number = this.getGalleryImageNumber();
+        if(number)
+            window.etalage__click(number);
+    }
+
+    else {
+        //var imageUrl = this.config.imageUrl;
+        var imageUrl = '';
+        if(productId) {
+            if(this.config.childProducts[productId].imageUrl) {
+                imageUrl = this.config.childProducts[productId].imageUrl;
+            }
+        }
+
+        if (!imageUrl) {
+            return;
+        }
+
+        $$('#product_addtocart_form a.product-image img').each(function(el) {
+            var dims = el.getDimensions();
+            el.src = imageUrl;
+            el.width = dims.width;
+            el.height = dims.height;
+        });
+    }
+
+};
+
+Product.Config.prototype.getGalleryImageNumber = function() {
+    var number = -1;
+    var found = false;
+    var selectedColor = jQuery('#attribute'+Product.Config.ColorAttributeId+" :selected").text().toLowerCase();
+    var mainId = selectedColor+'_main';
+
+    jQuery('#etalage_ li').each(function(){
+        if(!found)
+            number++;
+
+        var id = jQuery(this).attr('id');
+        id = id == undefined ? false : id.toLowerCase();
+        if(id === mainId) {
+            found = true;
+        }
+    });
+
+    return found ? number : 0;
+}
+
+
 
 Product.Config.prototype.updateProductName = function(productId) {
     var productName = this.config.productName;
@@ -268,10 +322,10 @@ Product.Config.prototype.updateProductStock = function(productId) {
     //If config product doesn't already have an additional information section,
     //it won't be shown for associated product either. It's too hard to work out
     //where to place it given that different themes use very different html here
-    $$('p.availability').each(function(el) { 
+    $$('p.availability').each(function(el) {
         el.replace(stockStatusHtml);
     });
-    $$('div.add-to-box').each(function(el) { 
+    $$('div.add-to-box').each(function(el) {
         el.innerHTML=addToCartHtml;
     });
 };
@@ -419,7 +473,7 @@ Product.Config.prototype.configureElement = function(element) {
 Product.Config.prototype.reloadOptionLabels = function(element){
     var selectedPrice;
     var childProducts = this.config.childProducts;
-    
+
     try {
         //Don't update elements that have a selected option
         if(element.options[element.selectedIndex].config){
