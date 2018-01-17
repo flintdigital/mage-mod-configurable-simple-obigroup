@@ -57,7 +57,7 @@ class OrganicInternet_SimpleConfigurableProducts_Catalog_Model_Product_Type_Conf
             }
 			$productId = $options["product_id"];
 			$childProduct = Mage::getModel('catalog/product')->load($productId);
-            return $childProduct->getPrice();
+            return $childProduct->getFinalPrice();
 		}
 
         $childProduct = $this->getChildProductWithLowestPrice($product, "finalPrice");
